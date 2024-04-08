@@ -1,13 +1,15 @@
 import java.util.ArrayList;
 
-public class Client {
+public class Client extends User {
     Profile profile;
     ArrayList<Book>borrowedBooks;
 
-    public Client(Profile profile, ArrayList<Book> borrowedBooks) {
-        this.profile = profile;
-        this.borrowedBooks=borrowedBooks;
+    public Client(Profile profile, String username, String password,ArrayList<Book> borrowedBooks) {
+        super(profile, username, password);
+        this.profile=profile;
+        this.borrowedBooks = borrowedBooks;
     }
+
 
     public Profile getProfile() {
         return profile;
@@ -25,7 +27,12 @@ public class Client {
         this.borrowedBooks = borrowedBooks;
     }
 
-    public void borrowedBook(Book book){
+    public void borrowBook(Book book) {
         borrowedBooks.add(book);
     }
+
+    public void returnBook(Book book) {
+        borrowedBooks.remove(book);
+    }
+
 }

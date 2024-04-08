@@ -1,92 +1,48 @@
-import java.time.LocalDate;
+
 import java.util.List;
-import java.util.stream.Collectors;
-public class MovementReport extends TransactionController {
+import java.util.Scanner;
 
-    public void generateReportByDateRange(LocalDate startDate, LocalDate endDate) {
-        List<Transaction> filteredTransactions = loan.stream()
-                .filter(transaction -> !transaction.getDate().isBefore(startDate) && !transaction.getDate().isAfter(endDate))
-                .collect(Collectors.toList());
+    public class MovementReport{
 
-        System.out.println("Movimientos entre " + startDate + " y " + endDate + ":");
-        for (Transaction transaction : filteredTransactions) {
-            System.out.println(transaction.getType() + " - " + transaction.getBook().getTitle() + " - " + transaction.getClient().getProfile().getName());
+    private final Repository repository;
+    Scanner scanner=new Scanner(System.in);
+
+        public MovementReport(Repository repository) {
+            this.repository = repository;
         }
-    }
 
-    public void generateReportByClient(String clientName) {
+    public void generateReportByClient() {
+        System.out.println("Lista de clientes: ");
+        for(Client client: repository.clients){
+            System.out.println(client.getProfile().getName());
+        }
+        System.out.println("Ingresa el nombre del cliente para generar el reporte: ");
+        String clientName=scanner.nextLine();
         Client client = findClientByName(clientName);
         if (client != null) {
-            List<Transaction> filteredTransactions = loan.stream()
+            List<Transaction> filteredTransactionsL= repository.loan.stream()
                     .filter(transaction -> transaction.getClient().equals(client))
-                    .collect(Collectors.toList());
-
+                    .toList();
+            List<Transaction> filteredTransactionsD=repository.devolution.stream()
+                            .filter(transaction -> transaction.getClient().equals(client))
+                                    .toList();
             System.out.println("Movimientos del cliente " + clientName + ":");
-            for (Transaction transaction : filteredTransactions) {
-                System.out.println(transaction.getType() + " - " + transaction.getBook().getTitle());
+            for (Transaction transactionD : filteredTransactionsD) {
+                System.out.println(transactionD.getType() + " - " + transactionD.getBook().getTitle());
+                for (Transaction transactionL : filteredTransactionsL) {
+                    System.out.println(transactionL.getType() + " - " + transactionL.getBook().getTitle());
+                }
             }
         } else {
             System.out.println("Cliente no encontrado.");
         }
     }
-
-    public void generateReportByBook(String bookTitle) {
-        Book book = findBookByTitle(bookTitle);
-        if (book != null) {
-            List<Transaction> filteredTransactions = loan.stream()
-                    .filter(transaction -> transaction.getBook().equals(book))
-                    .collect(Collectors.toList());
-
-            System.out.println("Movimientos del libro " + bookTitle + ":");
-            for (Transaction transaction : filteredTransactions) {
-                System.out.println(transaction.getType() + " - " + transaction.getClient().getProfile().getName());
+        public Client findClientByName(String name) {
+            for (Client client : repository.clients) {
+                if (client.getProfile().getName().equals(name)) {
+                    return client;
+                }
             }
-        } else {
-            System.out.println("Libro no encontrado.");
+            return null;  // Devuelve null si no se encuentra el cliente
         }
-    }
-
-    public void displayMenu() {
-        boolean exit = false;
-        while (!exit) {
-            System.out.println("\n---- Menú de movimientos ----");
-            System.out.println("1. Movimientos por tiempo");
-            System.out.println("2. Movimientos por clientes");
-            System.out.println("3. Movimientos por libros");
-            System.out.println("4. Salir");
-            System.out.print("Ingrese su opción: ");
-
-            int option = scanner.nextInt();
-            scanner.nextLine();  // Consumir el salto de línea
-
-            switch (option) {
-                case 1:
-                    System.out.println("Ingrese la fecha de inicio (formato: YYYY-MM-DD):");
-                    String startDateString = scanner.nextLine();
-                    LocalDate startDate = LocalDate.parse(startDateString);
-
-                    System.out.println("Ingrese la fecha de fin (formato: YYYY-MM-DD):");
-                    String endDateString = scanner.nextLine();
-
-                    LocalDate endDate = LocalDate.parse(endDateString);
-                    generateReportByDateRange(startDate,endDate);
-                    break;
-                case 2:
-                    System.out.println("Humano ingresa el nombre del cliente para generar el reporte: ");
-                    String clientName=scanner.nextLine();
-                    generateReportByClient(clientName);
-                    break;
-                case 3:
-                    System.out.println("Humano ingresa el nombre del libro para generar el reporte: ");
-                    String bookTitle=scanner.nextLine();
-                    generateReportByBook(bookTitle);
-                    break;
-                case 4:
-                    exit=true;
-                    break;
-                default:
-                    System.out.println("Humano opcion invalida vuelve a ingresar una opcion del 1-4");
-            }
-        }
-    }
 }

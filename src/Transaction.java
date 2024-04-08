@@ -20,9 +20,7 @@ public class Transaction {
         this.date=date;
     }
 
-    public String getId() {
-        return id;
-    }
+
     public  TransactionType getType(){
         return type;
     }
@@ -32,27 +30,6 @@ public class Transaction {
     public  Book getBook(){
         return  book;
     }
-    public  LocalDate getDate(){
-        return date;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
-    public void setType(TransactionType type) {
-        this.type = type;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
 }

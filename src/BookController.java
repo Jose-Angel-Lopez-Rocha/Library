@@ -1,186 +1,155 @@
-import java.util.ArrayList;
 import java.util.Scanner;
 
-public class BookController extends Repository {
+public class BookController{
+
+    private final Repository repository;
+    public BookController(Repository repository) {
+        this.repository = repository;
+    }
     Scanner scanner=new Scanner(System.in);
 
     public void createBook() {
-        System.out.print("Ingrese el título del libro: ");
+        System.out.print("Ingrese el título del libro: " + "\n");
         String title = scanner.nextLine();
-        System.out.print("Ingrese el ISBN del libro: ");
+        System.out.print("Ingrese el ISBN del libro: " + "\n");
         String isbn = scanner.nextLine();
-        System.out.print("Ingrese el año de publicación del libro: ");
+        System.out.print("Ingrese el año de publicación del libro: " + "\n");
         int publishDate = scanner.nextInt();
         scanner.nextLine(); // Consumir el salto de línea
 
-        System.out.println("Lista de autores:");
-        for (int i = 0; i < authors.size(); i++) {
-            Author author = authors.get(i);
-            System.out.println((i + 1) + ". " + author.getProfile().getName());
+        System.out.println("Selecciona un autor de la lista:");
+        for (int i = 0; i < repository.authors.size(); i++) {
+            System.out.println((i + 1) + ". " + repository.authors.get(i).getProfile().getName());
         }
 
-        System.out.print("Selecciona el número del autor: ");
-        int newAuthorIndex = scanner.nextInt();
-        scanner.nextLine();
+        int indiceAutor = scanner.nextInt() - 1;
 
-        if (newAuthorIndex >= 1 && newAuthorIndex <= authors.size()) {
-            Author newAuthor = authors.get(newAuthorIndex - 1);
-            System.out.println("Ingresa si el libro está disponible: ");
+        if (indiceAutor >= 0 && indiceAutor < repository.authors.size()) {
+            Author author = repository.authors.get(indiceAutor);
+
+            System.out.println("Ingresa si el libro está disponible: (true/false) ");
             boolean isAvailable = scanner.nextBoolean();
-
-            Book newBook = new Book(title, isbn, publishDate, newAuthor, isAvailable);
-            books.add(newBook);
+            Book newBook = new Book(title, isbn, publishDate, author, isAvailable);
+            repository.books.add(newBook);
+            author.addBook(newBook);
             System.out.println("Libro creado correctamente.");
         } else {
             System.out.println("Error: Selección de autor no válida.");
         }
     }
 
+
     public void showAllBooks() {
-        for (Book book : books) {
-            System.out.println(book.getTitle() + " (" + book.getIsbn() + ")");
+        for (Book book : repository.books) {
+            System.out.println(" Titulo del libro: " + book.getTitle() +
+                    ", Autor del libro: " + book.getAuthor().getProfile().getName() +
+                    ", ISBN del libro: " + book.getIsbn());
         }
     }
 
     public void showBorrowedBooks() {
-        for (Book book : books) {
+        for (Book book : repository.books) {
             if (!book.isAvailable()) {
-                System.out.println(book.getTitle() + " (" + book.getIsbn() + ")");
+                System.out.println(" Titulo del libro: " + book.getTitle() +
+                        ", Autor del libro: " + book.getAuthor().getProfile().getName() +
+                        ", ISBN del libro: " + book.getIsbn());
             }
         }
     }
 
     public void showAvailableBooks() {
-        for (Book book : books) {
+        for (Book book : repository.books) {
             if (book.isAvailable()) {
-                System.out.println(book.getTitle() + " (" + book.getIsbn() + ")");
+                System.out.println(" Titulo del libro: " + book.getTitle() +
+                        ", Autor del libro: " + book.getAuthor().getProfile().getName() +
+                        ", ISBN del libro: " + book.getIsbn());
             }
         }
     }
 
-    public void updateBook(String isbn){
-        for (Book book: books){
-            if (book.getIsbn().equals(isbn)){
+    public void updateBook( ){
+        if(repository.books.isEmpty()){
+            System.out.println("No hay libros para actualizar.");
+            return;
+        }
 
-                System.out.println("Ingresa el nuvo titulo del libro: ");
-                String newTitle=scanner.nextLine();
-                book.setTitle(newTitle);
+        System.out.println("Seleccione el librO que desea actualizar:");
+        for(int i = 0; i < repository.books.size(); i++){
+            System.out.println((i+1) + ". " + repository.books.get(i).getTitle());
+        }
 
-                System.out.println("Ingresa el nuevo año de publicacion de libro: ");
-                int newPublishYear=scanner.nextInt();
-                scanner.nextLine();
-                book.setPublishdate(newPublishYear);
+        int bookIndex = scanner.nextInt() - 1;
+        scanner.nextLine(); // consume newline
 
-                System.out.println("Ingresa el nuevo isbn del libro: ");
-                String newISBN=scanner.nextLine();
-                book.setIsbn(newISBN);
+        if(bookIndex < 0 || bookIndex >= repository.books.size()){
+            System.out.println("Selección inválida. Por favor, intente de nuevo.");
+            return;
+        }
 
-                System.out.println("Lista de autores:");
-                for (int i = 0; i < authors.size(); i++) {
-                    System.out.println((i + 1) + ". " + authors.get(i).getProfile().getName());
-                }
-                System.out.print("Selecciona el número del autor: ");
-                int newAuthorIndex = scanner.nextInt();
-                scanner.nextLine();
+        Book book = repository.books.get(bookIndex);
 
-                if (newAuthorIndex < 1 || newAuthorIndex > authors.size()) {
-                    System.out.println("Error: Selección de autor no válida.");
-                    return;
-                }
-                Author newAuthor = authors.get(newAuthorIndex - 1);
-                book.setAuthor(newAuthor);
+        System.out.println("Ingrese el nuevo titulo del libro:");
+        String newTitle = scanner.nextLine();
+        book.setTitle(newTitle);
 
+        System.out.println("Ingrese el nuevo año de publicacion del libro:");
+        int newPublishYear = scanner.nextInt();
+        scanner.nextLine();
+        book.setPublishdate(newPublishYear);
 
-                System.out.println("Ingresa si el libro esta disponible: ");
-                boolean newAvailability=scanner.nextBoolean();
-                book.setAvailable(newAvailability);
-            }else{
-                System.out.println("Lo siento humano ese libro no existe!");
+        System.out.println("Ingrese el nuevo isbn del libro:");
+        String newISBN = scanner.nextLine();
+        book.setIsbn(newISBN);
+
+        System.out.println("Selecciona el nuevo autor del libro: ");
+        for(int i = 0; i < repository.authors.size(); i++){
+            System.out.println((i+1) + ". " + repository.authors.get(i).getProfile().getName());
+        }
+        int newAuthorIndex = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        if (newAuthorIndex < 1 || newAuthorIndex > repository.authors.size()) {
+            System.out.println("Error: Selección de autor no válida.");
+            return;
+        }
+        Author newAuthor = repository.authors.get(newAuthorIndex - 1);
+        book.setAuthor(newAuthor);
+
+        }
+    public void deleteBook() {
+        if(repository.books.isEmpty()){
+            System.out.println("No hay libros para eliminar.");
+            return;
+        }
+
+        System.out.println("Seleccione el libro que desea eliminar:");
+        for(int i = 0; i < repository.books.size(); i++){
+            System.out.println((i+1) + ". " + repository.books.get(i).getTitle());
+        }
+
+        int bookIndex = scanner.nextInt() - 1;
+        scanner.nextLine(); // consume newline
+
+        if(bookIndex < 0 || bookIndex >= repository.books.size()){
+            System.out.println("Selección inválida. Por favor, intente de nuevo.");
+            return;
+        }
+
+        Book bookToRemove = repository.books.get(bookIndex);
+
+        // Verificar si el libro está en poder de algún cliente
+        for(Client client : repository.clients){
+            if(client.getBorrowedBooks().contains(bookToRemove)){
+                System.out.println("No se puede eliminar el libro " + bookToRemove.getTitle() + " porque está en poder de un cliente.");
+                return;
             }
         }
+
+        // Remover el libro de la lista de libros del autor
+        bookToRemove.getAuthor().getBooks().remove(bookToRemove);
+
+        repository.books.remove(bookToRemove);
+        System.out.println("Libro " + bookToRemove.getTitle() + " eliminado correctamente.");
     }
 
-    public void deleteBook(String isbn) {
-        Book bookToRemove = null;
-
-        // Buscar el libro por ISBN
-        for (Book book : books) {
-            if (book.getIsbn().equals(isbn)) {
-                if (book.isAvailable()) {
-                    System.out.println("No se puede eliminar: el libro está en poder de un cliente.");
-                    return;
-                }
-                bookToRemove = book;
-                break; // Salir del bucle una vez que se encuentra el libro
-            }
-        }
-
-        if (bookToRemove != null) {
-            // Obtener el autor del libro
-            Author author = bookToRemove.getAuthor();
-
-            // Eliminar el libro de la lista de libros del autor
-            author.removeBook(bookToRemove);
-
-            // Eliminar el libro de la lista de libros
-            books.remove(bookToRemove);
-
-            System.out.println("Libro eliminado correctamente.");
-        } else {
-            System.out.println("Lo siento, ese libro no existe.");
-        }
-    }
-
-    public void displayMenu() {
-        boolean exit = false;
-        while (!exit) {
-            System.out.println("\n---- Menú de Libros ----");
-            System.out.println("1. Crear libro");
-            System.out.println("2. Mostrar todos los libros");
-            System.out.println("3. Actualizar libro");
-            System.out.println("4. Eliminar libro");
-            System.out.println("5. Salir");
-            System.out.print("Ingrese su opción: ");
-
-            int option = scanner.nextInt();
-            scanner.nextLine();  // Consumir el salto de línea
-
-            switch (option) {
-                case 1:
-                    createBook();
-                    break;
-                case 2:
-                    System.out.println("Opciones 1) Mostrar todos los libros \n 2) Mostrar libros prestados \n 3) Mostrat los libros por estado ");
-                    int optionread=scanner.nextInt();
-                    switch (optionread){
-                        case 1:
-                            showAllBooks();
-                            break;
-                        case 2:
-                            showBorrowedBooks();
-                            break;
-                        case 3:showAvailableBooks();
-                        break;
-                        default:
-                            System.out.println("Lo siento humano opcion incorrecta");
-                    }
-                    break;
-                case 3:
-                    System.out.println("Ingresal el isbn del libro a actualizar: ");
-                    String isbn3=scanner.nextLine();
-                    updateBook(isbn3);
-                    break;
-                case 4:
-                    System.out.println("Ingresal el isbn del libro a eliminar: ");
-                    String isbn4=scanner.nextLine();
-                    deleteBook(isbn4);
-                    break;
-                case 5:
-                    exit = true;
-                    break;
-                default:
-                    System.out.println("Opción no válida. Por favor, ingrese un número del 1 al 5.");
-            }
-        }
-    }
 }

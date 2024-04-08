@@ -1,5 +1,5 @@
 
-    public class Profile {
+    public class Profile{
         private String name;
         private String lastName;
         private int birthDate;

@@ -1,8 +1,15 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class ClientController extends Repository {
+public class ClientController{
     Scanner scanner=new Scanner(System.in);
+
+    private final Repository repository;
+    public ClientController(Repository repository) {
+        this.repository = repository;
+    }
+
+
 
     public void createClient(){
         System.out.println("Ingresa el nombre del cliente: ");
@@ -12,14 +19,18 @@ public class ClientController extends Repository {
         System.out.println("Ingresa el año de nacimiento: ");
         int birthDate=scanner.nextInt();
         scanner.nextLine();
+        System.out.println("Ingresa el nombre de usuario del cliente: ");
+        String username=scanner.nextLine();
+        System.out.println("Ingresa la contraseña del cliente: ");
+        String password=scanner.nextLine();
 
-        Client newClient=new Client(new Profile(name,lastName,birthDate),new ArrayList<>());
-        clients.add(newClient);
+        Client newClient=new Client(new Profile(name,lastName,birthDate),username,password,new ArrayList<>());
+        repository.clients.add(newClient);
+        repository.users.add(newClient);
     }
-
     public void readClient(){
-        for (Client client : clients) {
-            System.out.println("Perfil del Cliente:\n");
+        for (Client client : repository.clients) {
+            System.out.println("Perfil del Cliente: \n");
             System.out.println("Nombre: " + client.getProfile().getName() + "\n");
             System.out.println("Apellido: " + client.getProfile().getLastName() + "\n");
             System.out.println("Fecha de nacimiento: " + client.getProfile().getBirthDate() + "\n");
@@ -28,92 +39,81 @@ public class ClientController extends Repository {
             if (borrowedBooks.isEmpty()) {
                 System.out.println("El cliente no tiene libros prestados.");
             } else {
-                for (Book book : borrowedBooks) {
-                    System.out.println("- " + book.getTitle() + "\n");
+                for (Book book:client.getBorrowedBooks()) {
+                    System.out.println("- " + book.getTitle());
                 }
             }
             System.out.println(); // Agregar una línea en blanco para separar los datos de cada cliente
         }
     }
-    public void updateClient(String name){
-        for(Client client:clients){
-            if(client.getProfile().getName().equals(name)){
-                System.out.println("Ingrese el nuevo nombre del cliente:");
-                String newName = scanner.nextLine();
-                client.getProfile().setName(newName);
-                System.out.println("Ingrese el nuevo apellido del cliente:");
-                String newLastName = scanner.nextLine();
-                client.getProfile().setLastName(newLastName);
-                System.out.println("Ingrese el neuvo año de nacimiento del cliente:");
-                int newBirthDate = scanner.nextInt();
-                client.getProfile().setBirthDate(newBirthDate);
-                System.out.println("Cliente actualizado correctamente.");
-            }else{
-                System.out.println("Lo siento humano el cliente no existe!");
-            }
+    public void updateClient(){
+        if(repository.clients.isEmpty()){
+            System.out.println("No hay clientes para actualizar.");
+            return;
         }
+
+        System.out.println("Seleccione el cliente que desea actualizar:");
+        for(int i = 0; i < repository.clients.size(); i++){
+            System.out.println((i+1) + ". " + repository.clients.get(i).getProfile().getName());
+        }
+
+        int clientIndex = scanner.nextInt() - 1;
+        scanner.nextLine(); // consume newline
+
+        if(clientIndex < 0 || clientIndex >= repository.clients.size()){
+            System.out.println("Selección inválida. Por favor, intente de nuevo.");
+            return;
+        }
+
+        Client client = repository.clients.get(clientIndex);
+
+        System.out.println("Ingrese el nuevo nombre del cliente:");
+        String newName = scanner.nextLine();
+        client.getProfile().setName(newName);
+
+        System.out.println("Ingrese el nuevo apellido del cliente:");
+        String newLastName = scanner.nextLine();
+        client.getProfile().setLastName(newLastName);
+
+        System.out.println("Ingrese el nuevo año de nacimiento del cliente:");
+        int newBirthDate = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+        client.getProfile().setBirthDate(newBirthDate);
+
+        System.out.println("Ingresa el nuevo nombre de usuario del cliente: ");
+        String newUserName = scanner.nextLine();
+        client.setUsername(newUserName);
+
+        System.out.println("Información del cliente actualizada con éxito.");
     }
-    public void deleteClient(String name) {
-        Client clientToRemove = null;
-
-        // Buscar al cliente por nombre
-        for (Client client : clients) {
-            if (client.getProfile().getName().equals(name)) {
-                clientToRemove = client;
-                break; // Salir del bucle una vez que se encuentra el cliente
-            }
+    public void deleteClient() {
+        if(repository.clients.isEmpty()){
+            System.out.println("No hay clientes para eliminar.");
+            return;
         }
 
-        if (clientToRemove != null) {
-            // Verificar si el cliente tiene libros prestados
-            if (clientToRemove.getBorrowedBooks().isEmpty()) {
-                clients.remove(clientToRemove);
-                System.out.println("Cliente " + clientToRemove.getProfile().getName() + " eliminado correctamente.");
-            } else {
-                System.out.println("No se puede eliminar el cliente " + clientToRemove.getProfile().getName() + " porque tiene libros en su poder.");
-            }
+        System.out.println("Seleccione el cliente que desea eliminar:");
+        for(int i = 0; i < repository.clients.size(); i++){
+            System.out.println((i+1) + ". " + repository.clients.get(i).getProfile().getName());
+        }
+
+        int clientIndex = scanner.nextInt() - 1;
+        scanner.nextLine(); // consume newline
+
+        if(clientIndex < 0 || clientIndex >= repository.clients.size()){
+            System.out.println("Selección inválida. Por favor, intente de nuevo.");
+            return;
+        }
+
+        Client clientToRemove = repository.clients.get(clientIndex);
+
+        // Verificar si el cliente tiene libros prestados
+        if (clientToRemove.getBorrowedBooks().isEmpty()) {
+            repository.clients.remove(clientToRemove);
+            System.out.println("Cliente " + clientToRemove.getProfile().getName() + " eliminado correctamente.");
         } else {
-            System.out.println("Lo siento, el cliente con nombre " + name + " no existe.");
+            System.out.println("No se puede eliminar el cliente " + clientToRemove.getProfile().getName() + " porque tiene libros en su poder.");
         }
     }
 
-    public void displayMenu() {
-        boolean exit = false;
-        while (!exit) {
-            System.out.println("\n---- Menú de clientes ----");
-            System.out.println("1. Crear cliente");
-            System.out.println("2. Mostrar todos los clientes");
-            System.out.println("3. Actualizar cliente");
-            System.out.println("4. Eliminar cliente");
-            System.out.println("5. Salir");
-            System.out.print("Ingrese su opción: ");
-
-            int option = scanner.nextInt();
-            scanner.nextLine();  // Consumir el salto de línea
-
-            switch (option) {
-                case 1:
-                    createClient();
-                    break;
-                case 2:
-                    readClient();
-                    break;
-                case 3:
-                    System.out.println("Ingresa el nimbre del cliente a actualizar: ");
-                    String name3 =scanner.nextLine();
-                    updateClient(name3);
-                    break;
-                case 4:
-                    System.out.println("Ingresa el nombre del cliente a eliminar: ");
-                    String name4 =scanner.nextLine();
-                    deleteClient(name4);
-                    break;
-                case 5:
-                    exit = true;
-                    break;
-                default:
-                    System.out.println("Opción no válida. Por favor, ingrese un número del 1 al 5.");
-            }
-        }
-    }
 }
