@@ -9,8 +9,6 @@ public class ClientController{
         this.repository = repository;
     }
 
-
-
     public void createClient(){
         System.out.println("Ingresa el nombre del cliente: ");
         String name=scanner.nextLine();
@@ -34,6 +32,7 @@ public class ClientController{
             System.out.println("Nombre: " + client.getProfile().getName() + "\n");
             System.out.println("Apellido: " + client.getProfile().getLastName() + "\n");
             System.out.println("Fecha de nacimiento: " + client.getProfile().getBirthDate() + "\n");
+            System.out.println("Contraseña hasheada: " + client.getPassword() + "\n");
             System.out.println("Libros prestados:" + "\n");
             ArrayList<Book> borrowedBooks = client.getBorrowedBooks();
             if (borrowedBooks.isEmpty()) {

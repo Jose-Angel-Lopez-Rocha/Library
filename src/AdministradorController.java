@@ -79,6 +79,7 @@ public class AdministradorController{
             System.out.print("Nombre: " + administrador.getProfile().getName() + "\n");
             System.out.print("Apellido: " + administrador.getProfile().getLastName() + "\n");
             System.out.print("Fecha de nacimiento: " + administrador.getProfile().getBirthDate() + "\n");
+            System.out.println("Contraseña hasheada: " + administrador.getPassword());
             System.out.println("Es superadministrador: " + (administrador.isSuperAdmin() ? "Sí" : "No"));
             System.out.print("Permisos del administrador : \n");
             for (Administrador.Permissions permissions : administrador.getPermissions()) {
