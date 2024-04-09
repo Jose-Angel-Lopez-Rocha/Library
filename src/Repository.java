@@ -16,14 +16,16 @@ public class Repository{
 
     public void initialize(){
 
+
+
             Author author1 = new Author(new Profile("Jorge","Ramirez",1997));
             Author author2 = new Author(new Profile("Susana","Reyes",1998));
             authors.add(author1);
             authors.add(author2);
 
 
-            Book book1 = new Book("Pollos hermanos", "32324", 2000, authors.get(0), true);
-            Book book2 = new Book("Majula", "4234", 2014, authors.get(1),true);
+            Book book1 = new Book("Como Triunfar en Youtube", "32324",2002, authors.get(0), true);
+            Book book2 = new Book("Luna De Pluton", "4234", 2014, authors.get(1),true);
             books.add(book1);
             books.add(book2);
             authors.get(0).addBook(book1);
@@ -32,7 +34,7 @@ public class Repository{
 
             ArrayList<Book> borrowedBooks1 = new ArrayList<>();
             ArrayList<Book> borrowedBooks2 = new ArrayList<>();
-            Client client1= new Client(new Profile("Jose Manuel","Gutirrez", 2001),"Cliente1","12345",borrowedBooks1);
+            Client client1= new Client(new Profile("Jose","Gutirrez", 2001),"Cliente1","12345",borrowedBooks1);
             Client client2=new Client(new Profile("Saul","Ramirez",2003),"Cliente2","0987",borrowedBooks2);
             clients.add(client1);
             clients.add(client2);
@@ -68,8 +70,16 @@ public class Repository{
 
         for (Client client : clients) {
             for (Book book : client.getBorrowedBooks()) {
-                Transaction transaction = new Transaction(Transaction.TransactionType.LOAN, UUID.randomUUID().toString(), client, book, LocalDate.now());
+                Transaction transaction = new Transaction(Transaction.TransactionType.LOAN, UUID.randomUUID().toString(), client, book,LocalDate.now());
                 loan.add(transaction);
+                transactions.add(transaction);
+            }
+        }
+        for (Client client:clients){
+            for (Book book: client.getBorrowedBooks()){
+                Transaction transaction=new Transaction(Transaction.TransactionType.DEVOLUTION,UUID.randomUUID().toString(),client,book, LocalDate.now());
+                devolution.add(transaction);
+                transactions.add(transaction);
             }
         }
     }

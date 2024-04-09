@@ -14,7 +14,7 @@ public class BookController{
         System.out.print("Ingrese el ISBN del libro: " + "\n");
         String isbn = scanner.nextLine();
         System.out.print("Ingrese el año de publicación del libro: " + "\n");
-        int publishDate = scanner.nextInt();
+        int publishDate= scanner.nextInt();
         scanner.nextLine(); // Consumir el salto de línea
 
         System.out.println("Selecciona un autor de la lista:");
@@ -93,7 +93,7 @@ public class BookController{
         book.setTitle(newTitle);
 
         System.out.println("Ingrese el nuevo año de publicacion del libro:");
-        int newPublishYear = scanner.nextInt();
+        int newPublishYear=scanner.nextInt();
         scanner.nextLine();
         book.setPublishdate(newPublishYear);
 

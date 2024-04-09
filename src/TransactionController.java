@@ -70,7 +70,8 @@ public class TransactionController {
             if (client.getBorrowedBooks().size() < 3) {
                 client.borrowBook(book);
                 book.setAvailable(false);
-                repository.loan.add(new Transaction(Transaction.TransactionType.LOAN, UUID.randomUUID().toString(), client, book, LocalDate.now()));
+                Transaction transaction= new Transaction(Transaction.TransactionType.LOAN, UUID.randomUUID().toString(), client, book, LocalDate.now());
+                repository.loan.add(transaction);
                 System.out.println("Libro prestado correctamente.");
             } else {
                 System.out.println("El cliente ya tiene 3 libros prestados.");
@@ -91,7 +92,8 @@ public class TransactionController {
         if (client != null && book != null && client.getBorrowedBooks().contains(book)) {
             client.getBorrowedBooks().remove(book);
             book.setAvailable(true);
-            repository.devolution.add(new Transaction(Transaction.TransactionType.DEVOLUTION, UUID.randomUUID().toString(), client, book, LocalDate.now()));
+            Transaction transaction=new Transaction(Transaction.TransactionType.DEVOLUTION,UUID.randomUUID().toString(),client,book, LocalDate.now());
+            repository.devolution.add(transaction);
             System.out.println("Libro devuelto correctamente.");
         } else {
             System.out.println("Cliente o libro no encontrado.");
