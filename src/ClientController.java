@@ -1,33 +1,31 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class ClientController{
-    Scanner scanner=new Scanner(System.in);
+    Seeder seeder;
+    ConsoleReader consoleReader;
+    StringValidator stringValidator;
+    IntegerValidator integerValidator;
+    BooleanValidator booleanValidator;
 
-    private final Repository repository;
-    public ClientController(Repository repository) {
-        this.repository = repository;
+    public ClientController(Seeder seeder,StringValidator stringValidator,IntegerValidator integerValidator,ConsoleReader consoleReader, BooleanValidator booleanValidator) {
+        this.seeder = seeder;
+        this.stringValidator=stringValidator;
+        this.integerValidator=integerValidator;
+        this.consoleReader=consoleReader;
+        this.booleanValidator=booleanValidator;
     }
-
     public void createClient(){
-        System.out.println("Ingresa el nombre del cliente: ");
-        String name=scanner.nextLine();
-        System.out.println("Ingresa el apellido del cliente: ");
-        String lastName=scanner.nextLine();
-        System.out.println("Ingresa el año de nacimiento: ");
-        int birthDate=scanner.nextInt();
-        scanner.nextLine();
-        System.out.println("Ingresa el nombre de usuario del cliente: ");
-        String username=scanner.nextLine();
-        System.out.println("Ingresa la contraseña del cliente: ");
-        String password=scanner.nextLine();
-
+        String name=consoleReader.readString("Ingresa el nombre del cliente: ",input -> stringValidator.validate(input));
+        String lastName=consoleReader.readString("Ingresa el apellido del cliente: ",input -> stringValidator.validate(input));
+        int birthDate=consoleReader.readInt("Ingresa la fecha de nacimiento del cliente: ",input -> integerValidator.validate(input));
+        String username=consoleReader.readString("Ingresa el nombre de usuario del cliente: ",input -> stringValidator.validate(input));
+        String password=consoleReader.readString("Ingresa la contraseña del cliente: ", input -> stringValidator.validate(input));
         Client newClient=new Client(new Profile(name,lastName,birthDate),username,password,new ArrayList<>());
-        repository.clients.add(newClient);
-        repository.users.add(newClient);
+        seeder.userRepository.clients.add(newClient);
+        seeder.userRepository.users.add(newClient);
     }
     public void readClient(){
-        for (Client client : repository.clients) {
+        for (Client client : seeder.userRepository.clients) {
             System.out.println("Perfil del Cliente: \n");
             System.out.println("Nombre: " + client.getProfile().getName() + "\n");
             System.out.println("Apellido: " + client.getProfile().getLastName() + "\n");
@@ -45,74 +43,65 @@ public class ClientController{
             System.out.println(); // Agregar una línea en blanco para separar los datos de cada cliente
         }
     }
-    public void updateClient(){
-        if(repository.clients.isEmpty()){
+    public void updateClient() {
+        if (seeder.userRepository.clients.isEmpty()) {
             System.out.println("No hay clientes para actualizar.");
             return;
         }
 
         System.out.println("Seleccione el cliente que desea actualizar:");
-        for(int i = 0; i < repository.clients.size(); i++){
-            System.out.println((i+1) + ". " + repository.clients.get(i).getProfile().getName());
+        for (int i = 0; i < seeder.userRepository.clients.size(); i++) {
+            System.out.println((i + 1) + ". " + seeder.userRepository.clients.get(i).getProfile().getName());
         }
 
-        int clientIndex = scanner.nextInt() - 1;
-        scanner.nextLine(); // consume newline
+        int clientIndex = consoleReader.readIndex(seeder.userRepository.clients.size()) - 1;
 
-        if(clientIndex < 0 || clientIndex >= repository.clients.size()){
+        if (clientIndex < 0 || clientIndex >= seeder.userRepository.clients.size()) {
             System.out.println("Selección inválida. Por favor, intente de nuevo.");
             return;
         }
 
-        Client client = repository.clients.get(clientIndex);
+        Client client = seeder.userRepository.clients.get(clientIndex);
 
-        System.out.println("Ingrese el nuevo nombre del cliente:");
-        String newName = scanner.nextLine();
+        String newName = consoleReader.readString("Ingrese el nuevo nombre del cliente: ",input -> stringValidator.validate(input));
         client.getProfile().setName(newName);
-
-        System.out.println("Ingrese el nuevo apellido del cliente:");
-        String newLastName = scanner.nextLine();
+        String newLastName = consoleReader.readString("Ingrese el nuevo apellido del cliente: ", input -> stringValidator.validate(input));
         client.getProfile().setLastName(newLastName);
-
-        System.out.println("Ingrese el nuevo año de nacimiento del cliente:");
-        int newBirthDate = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        int newBirthDate = consoleReader.readInt("Ingrese el nuevo año de nacimiento del cliente: ", input -> integerValidator.validate(input));
         client.getProfile().setBirthDate(newBirthDate);
-
-        System.out.println("Ingresa el nuevo nombre de usuario del cliente: ");
-        String newUserName = scanner.nextLine();
+        String newUserName = consoleReader.readString("Ingresa el nuevo nombre de usuario del cliente: ", input -> stringValidator.validate(input));
         client.setUsername(newUserName);
 
         System.out.println("Información del cliente actualizada con éxito.");
     }
+
     public void deleteClient() {
-        if(repository.clients.isEmpty()){
+        if (seeder.userRepository.clients.isEmpty()) {
             System.out.println("No hay clientes para eliminar.");
             return;
         }
 
         System.out.println("Seleccione el cliente que desea eliminar:");
-        for(int i = 0; i < repository.clients.size(); i++){
-            System.out.println((i+1) + ". " + repository.clients.get(i).getProfile().getName());
+        for (int i = 0; i < seeder.userRepository.clients.size(); i++) {
+            System.out.println((i + 1) + ". " + seeder.userRepository.clients.get(i).getProfile().getName());
         }
 
-        int clientIndex = scanner.nextInt() - 1;
-        scanner.nextLine(); // consume newline
+        int clientIndex = consoleReader.readIndex(seeder.userRepository.clients.size()) - 1;
 
-        if(clientIndex < 0 || clientIndex >= repository.clients.size()){
+        if (clientIndex < 0 || clientIndex >= seeder.userRepository.clients.size()) {
             System.out.println("Selección inválida. Por favor, intente de nuevo.");
             return;
         }
 
-        Client clientToRemove = repository.clients.get(clientIndex);
+        Client clientToRemove = seeder.userRepository.clients.get(clientIndex);
 
-        // Verificar si el cliente tiene libros prestados
         if (clientToRemove.getBorrowedBooks().isEmpty()) {
-            repository.clients.remove(clientToRemove);
+            seeder.userRepository.clients.remove(clientToRemove);
             System.out.println("Cliente " + clientToRemove.getProfile().getName() + " eliminado correctamente.");
         } else {
             System.out.println("No se puede eliminar el cliente " + clientToRemove.getProfile().getName() + " porque tiene libros en su poder.");
         }
     }
+
 
 }

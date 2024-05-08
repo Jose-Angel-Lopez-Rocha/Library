@@ -1,46 +1,38 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class AdministradorController{
 
-    Scanner scanner = new Scanner(System.in);
-    private final Repository repository;
+    Seeder seeder;
+    ConsoleReader consoleReader;
+    StringValidator stringValidator;
+    IntegerValidator integerValidator;
+    BooleanValidator booleanValidator;
 
-
-    public AdministradorController(Repository repository) {
-        this.repository = repository;
+    public AdministradorController(Seeder seeder,StringValidator stringValidator,IntegerValidator integerValidator,ConsoleReader consoleReader, BooleanValidator booleanValidator) {
+        this.seeder = seeder;
+        this.stringValidator=stringValidator;
+        this.integerValidator=integerValidator;
+        this.consoleReader=consoleReader;
+        this.booleanValidator=booleanValidator;
     }
 
     public void createAdmin() {
+        String name = consoleReader.readString("Ingresa el nombre del administrador: ",input -> stringValidator.validate(input));
+        String lastName = consoleReader.readString("Ingresa el apellido del administrador: ",input -> stringValidator.validate(input));
+        int birthDate = consoleReader.readInt("Ingresa la fecha de nacimiento del administrador: ",input -> integerValidator.validate(input));
+        String username = consoleReader.readString("Ingresa el nombre de usuario del a dministrador: ",input -> stringValidator.validate(input));
+        String password = consoleReader.readString("Ingresa la contraseña del administrador:  ",input -> stringValidator.validate(input));
+        System.out.println("¿Quieres hacer del administrador un super administrador? (s/n)");
+        boolean isSuperAdmin = consoleReader.readYesNo();
 
-        System.out.println("Ingresa el nombre del administrador: ");
-        String name = scanner.nextLine();
-
-        System.out.println("Ingresa los apellidos del administrador: ");
-        String lastName = scanner.nextLine();
-
-        System.out.println("Ingresa el año de nacimiento del administrador: ");
-        int birthDate = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-
-        System.out.println("Ingresa el nombre de usuario del administrador: ");
-        String username = scanner.nextLine();
-
-        System.out.println("Ingresa la contraseña del administrador: ");
-        String password = scanner.nextLine();
-
-        System.out.println("Quieres hacer del administrador un super administrador? (s/n) ");
-        String SuperAdminsistrador=scanner.nextLine();
-        boolean isSuperAdministrador=SuperAdminsistrador.equalsIgnoreCase("s");
-        if (isSuperAdministrador) {
-            for (Administrador administrador : repository.administradores) {
+        if (isSuperAdmin) {
+            for (Administrador administrador : seeder.userRepository.administradores) {
                 if (administrador.isSuperAdmin()) {
                     System.out.println("Ya existe un super administrador. No se puede crear otro.");
                     return;
                 }
             }
         }
-
 
         ArrayList<Administrador.Permissions> permissions = new ArrayList<>();
 
@@ -49,8 +41,7 @@ public class AdministradorController{
         System.out.println("2. Permiso de escritura");
         System.out.println("3. Permiso de eliminación");
 
-        int option = scanner.nextInt();
-        scanner.nextLine();
+        int option = consoleReader.readInteger(1, 3);
 
         switch (option) {
             case 1:
@@ -66,16 +57,15 @@ public class AdministradorController{
                 System.out.println("Opcion invalida");
         }
 
-        Administrador newAdmin = new Administrador(new Profile(name, lastName, birthDate), username, password, permissions, isSuperAdministrador);
-        repository.administradores.add(newAdmin);
-        repository.users.add(newAdmin);
-
-
+        Administrador newAdmin = new Administrador(new Profile(name, lastName, birthDate), username, password, permissions, isSuperAdmin);
+        seeder.userRepository.administradores.add(newAdmin);
+        seeder.userRepository.users.add(newAdmin);
     }
+
 
     public void readAdmin() {
         System.out.println("Lista de administradores: \n ");
-        for (Administrador administrador : repository.administradores) {
+        for (Administrador administrador : seeder.userRepository.administradores) {
             System.out.print("Nombre: " + administrador.getProfile().getName() + "\n");
             System.out.print("Apellido: " + administrador.getProfile().getLastName() + "\n");
             System.out.print("Fecha de nacimiento: " + administrador.getProfile().getBirthDate() + "\n");
@@ -87,62 +77,48 @@ public class AdministradorController{
             }
         }
     }
-
     public void updateAdmin() {
-        if(repository.administradores.isEmpty()){
+        if (seeder.userRepository.administradores.isEmpty()) {
             System.out.println("No hay administradores para actualizar.");
             return;
         }
 
         System.out.println("Seleccione el administrador que desea actualizar:");
-        for(int i = 0; i < repository.administradores.size(); i++){
-            System.out.println((i+1) + ". " + repository.administradores.get(i).getProfile().getName());
+        for (int i = 0; i < seeder.userRepository.administradores.size(); i++) {
+            System.out.println((i + 1) + ". " + seeder.userRepository.administradores.get(i).getProfile().getName());
         }
 
-        int adminIndex = scanner.nextInt() - 1;
-        scanner.nextLine(); // consume newline
+        int adminIndex = consoleReader.readInteger(1, seeder.userRepository.administradores.size()) - 1;
 
-        if(adminIndex < 0 || adminIndex >= repository.administradores.size()){
-            System.out.println("Selección inválida. Por favor, intente de nuevo.");
-            return;
-        }
+        Administrador administrador = seeder.userRepository.administradores.get(adminIndex);
 
-        Administrador administrador = repository.administradores.get(adminIndex);
-
-        System.out.println("Ingrese el nuevo nombre del administrador:");
-        String newName = scanner.nextLine();
+        String newName = consoleReader.readString("Ingrese el nuevo nombre del administrador: ",input -> stringValidator.validate(input));
         administrador.getProfile().setName(newName);
 
-        System.out.println("Ingrese el nuevo apellido del administrador:");
-        String newLastName = scanner.nextLine();
+        String newLastName = consoleReader.readString("Ingrese el nuevo nombre del administrador: ",input -> stringValidator.validate(input));
         administrador.getProfile().setLastName(newLastName);
 
-        System.out.println("Ingrese el nuevo año de nacimiento del administrador:");
-        int newBirthDate = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        System.out.println("Ingrese el nuevo año de nacimiento del administrador: ");
+        int newBirthDate = consoleReader.readInt("Ingrese el nuevo año de nacimiento del administrador: ", input -> integerValidator.validate(input));
         administrador.getProfile().setBirthDate(newBirthDate);
 
-        System.out.println("Ingresa el nuevo nombre de usuario del administrador: ");
-        String newUserName = scanner.nextLine();
+        String newUserName = consoleReader.readString("Ingresa el nuevo nombre de usuario del administrador: ", input -> stringValidator.validate(input));
         administrador.setUsername(newUserName);
 
-        System.out.println("Ingresa la nueva contraseña del administrador");
-        String newPassword = scanner.nextLine();
+        String newPassword = consoleReader.readString("Ingresa la nueva contraseña del administrador: ",input -> stringValidator.validate(input));
         administrador.setPassword(newPassword);
 
         System.out.println("¿Deseas actualizar los permisos del administrador? (s/n)");
-        String updatePermissions = scanner.nextLine();
-        if(updatePermissions.equalsIgnoreCase("s")){
+        boolean updatePermissions = consoleReader.readYesNo();
+        if (updatePermissions) {
             ArrayList<Administrador.Permissions> newPermissions = new ArrayList<>();
-            String s = "s";
-            while(s.equalsIgnoreCase("s")){
+            boolean addAnotherPermission = true;
+            while (addAnotherPermission) {
                 System.out.println("Selecciona el permiso para agregar al administrador:");
                 System.out.println("1. Permiso de lectura");
                 System.out.println("2. Permiso de escritura");
                 System.out.println("3. Permiso de eliminación");
-                int option = scanner.nextInt();
-                scanner.nextLine(); // Consumir el salto de línea
-
+                int option = consoleReader.readInteger(1,3);
                 switch (option) {
                     case 1:
                         newPermissions.add(Administrador.Permissions.READ);
@@ -158,7 +134,7 @@ public class AdministradorController{
                 }
 
                 System.out.println("¿Deseas agregar otro permiso? (s/n)");
-                s = scanner.nextLine();
+                addAnotherPermission = consoleReader.readYesNo();
             }
             administrador.setPermissions(newPermissions);
         }
@@ -166,33 +142,27 @@ public class AdministradorController{
         System.out.println("Administrador actualizado correctamente");
     }
 
-
     public void deleteAdmin() {
-        if(repository.administradores.isEmpty()){
+        if (seeder.userRepository.administradores.isEmpty()) {
             System.out.println("No hay administradores para eliminar.");
             return;
         }
 
         System.out.println("Seleccione el administrador que desea eliminar:");
-        for(int i = 0; i < repository.administradores.size(); i++){
-            System.out.println((i+1) + ". " + repository.administradores.get(i).getUsername());
+        for (int i = 0; i < seeder.userRepository.administradores.size(); i++) {
+            System.out.println((i + 1) + ". " + seeder.userRepository.administradores.get(i).getUsername());
         }
 
-        int adminIndex = scanner.nextInt() - 1;
-        scanner.nextLine(); // consume newline
+        int adminIndex = consoleReader.readInteger(1, seeder.userRepository.administradores.size()) - 1;
 
-        if(adminIndex < 0 || adminIndex >= repository.administradores.size()){
-            System.out.println("Selección inválida. Por favor, intente de nuevo.");
-            return;
-        }
+        Administrador administradorToRemove = seeder.userRepository.administradores.get(adminIndex);
 
-        Administrador administradorToRemove = repository.administradores.get(adminIndex);
-
-        if(administradorToRemove.isSuperAdmin()){
+        if (administradorToRemove.isSuperAdmin()) {
             System.out.println("No se puede eliminar un super administrador");
             return;
         }
-        repository.administradores.remove(administradorToRemove);
+        seeder.userRepository.administradores.remove(administradorToRemove);
         System.out.println("Administrador " + administradorToRemove.getProfile().getName() + " eliminado correctamente.");
     }
+
 }

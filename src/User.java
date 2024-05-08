@@ -2,34 +2,33 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class User {
+public abstract class User {
     private Profile profile;
     private String username;
     private String password;
-    private Repository repository;
 
 
     public User(Profile profile, String username, String password) {
-            this.profile=profile;
-            this.username=username;
-            setPassword(password);
-        }
+        this.profile=profile;
+        this.username=username;
+        setPassword(password);
+    }
 
-        public Profile getProfile() {
-            return profile;
-        }
+    public Profile getProfile() {
+        return profile;
+    }
 
-        public void setProfile(Profile profile) {
-            this.profile = profile;
-        }
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
 
-        public String getUsername() {
-            return username;
-        }
+    public String getUsername() {
+        return username;
+    }
 
-        public void setUsername(String username) {
-            this.username = username;
-        }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public void setPassword(String password) {
         this.password = hashPassword(password);
@@ -56,6 +55,6 @@ public class User {
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
-            }
         }
     }
+}

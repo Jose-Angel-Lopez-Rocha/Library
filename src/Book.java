@@ -1,26 +1,25 @@
-import java.util.Date;
 
 public class Book{
-    private String isbn;
+    private int isbn;
     private String title;
     private Author author;
     private int publishdate;
     private boolean isAvailable;
 
 
-    public Book(String title, String isbn, int publishdate, Author author, boolean isAvailable) {
-    this.isbn=isbn;
-    this.title=title;
-    this.publishdate=publishdate;
-    this.isAvailable=isAvailable;
-    this.author=author;
+    public Book(String title, int isbn, int publishdate, Author author, boolean isAvailable) {
+        this.isbn=isbn;
+        this.title=title;
+        this.publishdate=publishdate;
+        this.isAvailable=isAvailable;
+        this.author=author;
     }
 
-    public String getIsbn() {
+    public int getIsbn() {
         return isbn;
     }
 
-    public void setIsbn(String isbn) {
+    public void setIsbn(int isbn) {
         this.isbn = isbn;
     }
 

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class MenuAdministrador {
@@ -8,13 +9,127 @@ public class MenuAdministrador {
     private final AuthorController authorController;
     private final BookController bookController;
     private final AdministradorController administradorController;
+    private final Menu menu;
 
-    public MenuAdministrador(Administrador superAdmin, ClientController clientController, AuthorController authorController, BookController bookController, AdministradorController administradorController) {
+    public MenuAdministrador(Administrador superAdmin, ClientController clientController, AuthorController authorController, BookController bookController, AdministradorController administradorController,Menu menu) {
         this.superAdmin = superAdmin;
         this.clientController = clientController;
         this.authorController = authorController;
         this.bookController = bookController;
         this.administradorController = administradorController;
+        this.menu=menu;
+        setupMenu();
+    }
+    private void setupMenu() {
+        menu.addOption("1", () -> {
+            System.out.println("¿Qué acción quieres realizar?");
+            System.out.println("1. Crear entidad");
+            System.out.println("2. Actualizar entidad");
+            int action1 = scanner.nextInt();
+            scanner.nextLine();
+            if (action1 == 1) {
+                System.out.println("¿Qué entidad quieres crear?");
+                System.out.println("1. Cliente");
+                System.out.println("2. Libro");
+                System.out.println("3. Administrador");
+                System.out.println("4. Autor");
+
+                int type1 = scanner.nextInt();
+                scanner.nextLine();
+                switch (type1) {
+                    case 1:
+                        clientController.createClient();
+                        break;
+                    case 2:
+                        bookController.createBook();
+                        break;
+                    case 3:
+                        administradorController.createAdmin();
+                        break;
+                    case 4:
+                        authorController.createAuthor();
+                        break;
+                    default:
+                        System.out.println("Opción inválida");
+                }
+            } else if (action1 == 2) {
+                System.out.println("¿Qué entidad quieres actualizar?");
+                System.out.println("1. Cliente");
+                System.out.println("2. Libro");
+                System.out.println("3. Administrador");
+                System.out.println("4. Autor");
+
+                int type2 = scanner.nextInt();
+                scanner.nextLine();
+                switch (type2) {
+                    case 1:
+                        clientController.updateClient();
+                        break;
+                    case 2:
+                        bookController.updateBook();
+                        break;
+                    case 3:
+                        administradorController.updateAdmin();
+                        break;
+                    case 4:
+                        authorController.updateAuthor();
+                        break;
+                    default:
+                        System.out.println("Opción inválida");
+                }
+            } else {
+                System.out.println("Opción inválida");
+            }
+        });
+        menu.addOption("2", () -> {
+            System.out.println("¿Qué entidad quieres leer?");
+            System.out.println("1. Cliente");
+            System.out.println("2. Libro");
+            System.out.println("3. Administrador");
+            System.out.println("4. Autor");
+            HashMap<Integer, Runnable> readEntityOptions = new HashMap<>();
+            readEntityOptions.put(1, clientController::readClient);
+            readEntityOptions.put(2, () -> {
+                System.out.println("Listado de libros: ");
+                bookController.showAllBooks();
+                System.out.println("Libros disponibles");
+                bookController.showAvailableBooks();
+                System.out.println("Libros prestados: ");
+                bookController.showBorrowedBooks();
+            });
+            readEntityOptions.put(3, administradorController::readAdmin);
+            readEntityOptions.put(4, authorController::readAuthor);
+
+            int type43 = scanner.nextInt();
+            scanner.nextLine();
+            Runnable action = readEntityOptions.get(type43);
+            if (action != null) {
+                action.run();
+            } else {
+                System.out.println("Opción inválida");
+            }
+        });
+        menu.addOption("3", () -> {
+            System.out.println("¿Qué entidad quieres borrar?");
+            System.out.println("1. Cliente");
+            System.out.println("2. Libro");
+            System.out.println("3. Administrador");
+            System.out.println("4. Autor");
+            int type36 = scanner.nextInt();
+            HashMap<Integer, Runnable> deleteEntityOptions = new HashMap<>();
+            deleteEntityOptions.put(1, clientController::deleteClient);
+            deleteEntityOptions.put(2, bookController::deleteBook);
+            deleteEntityOptions.put(3, administradorController::deleteAdmin);
+            deleteEntityOptions.put(4, authorController::deleteAuthor);
+            scanner.nextLine();
+            Runnable action = deleteEntityOptions.get(type36);
+            if (action != null) {
+                action.run();
+            } else {
+                System.out.println("Opción inválida");
+            }
+        });
+        menu.addOption("4", () -> System.out.println("Adios humano"));
     }
 
     public void displayMenu() {
@@ -36,134 +151,13 @@ public class MenuAdministrador {
             }
             System.out.println("4. Salir del menu");
 
-            int next1 = scanner.nextInt();
-            scanner.nextLine();
-            switch (next1) {
-                case 1:
-                    System.out.println("¿Qué acción quieres realizar?");
-                    System.out.println("1. Crear entidad");
-                    System.out.println("2. Actualizar entidad");
-                    int action1 = scanner.nextInt();
-                    switch (action1) {
-                        case 1:
-                            System.out.println("¿Qué entidad quieres crear?");
-                            System.out.println("1. Cliente");
-                            System.out.println("2. Libro");
-                            System.out.println("3. Administrador");
-                            System.out.println("4. Autor");
+            String choice = scanner.next();
 
-                            int type1 = scanner.nextInt();
-                            scanner.nextLine();
-                            switch (type1) {
-                                case 1:
-                                    clientController.createClient();
-                                    break;
-                                case 2:
-                                    bookController.createBook();
-                                    break;
-                                case 3:
-                                    administradorController.createAdmin();
-                                    break;
-                                case 4:
-                                    authorController.createAuthor();
-                                    break;
-                                default:
-                                    System.out.println("Opción inválida");
-                            }
-                            break;
-                        case 2:
-                            System.out.println("¿Qué entidad quieres actualizar?");
-                            System.out.println("1. Cliente");
-                            System.out.println("2. Libro");
-                            System.out.println("3. Administrador");
-                            System.out.println("4. Autor");
-
-                            int type2 = scanner.nextInt();
-                            scanner.nextLine();
-                            switch (type2) {
-                                case 1:
-                                    clientController.updateClient();
-                                    break;
-                                case 2:
-                                    bookController.updateBook();
-                                    break;
-                                case 3:
-                                    administradorController.updateAdmin();
-                                    break;
-                                case 4:
-                                    authorController.updateAuthor();
-                                    break;
-                                default:
-                                    System.out.println("Opción inválida");
-                            }
-                            break;
-                        default:
-                            System.out.println("Opción inválida");
-                    }
-                    break;
-                case 2:
-                    System.out.println("¿Qué entidad quieres leer?");
-                    System.out.println("1. Cliente");
-                    System.out.println("2. Libro");
-                    System.out.println("3. Administrador");
-                    System.out.println("4. Autor");
-
-                    int type43 = scanner.nextInt();
-                    scanner.nextLine();
-                    switch (type43) {
-                        case 1:
-                            clientController.readClient();
-                            break;
-                        case 2:
-                            System.out.println("Listado de libros: ");
-                            bookController.showAllBooks();
-                            System.out.println("Libros disponibles");
-                            bookController.showAvailableBooks();
-                            System.out.println("Libros prestados: ");
-                            bookController.showBorrowedBooks();
-                            break;
-                        case 3:
-                            administradorController.readAdmin();
-                            break;
-                        case 4:
-                            authorController.readAuthor();
-                            break;
-                        default:
-                            System.out.println("Opción inválida");
-                    }
-                    break;
-                case 3:
-                    System.out.println("¿Qué entidad quieres borrar?");
-                    System.out.println("1. Cliente");
-                    System.out.println("2. Libro");
-                    System.out.println("3. Administrador");
-                    System.out.println("4. Autor");
-
-                    int type36 = scanner.nextInt();
-                    scanner.nextLine();
-                    switch (type36) {
-                        case 1:
-                            clientController.deleteClient();
-                            break;
-                        case 2:
-                            bookController.deleteBook();
-                            break;
-                        case 3:
-                            administradorController.deleteAdmin();
-                            break;
-                        case 4:
-                            authorController.deleteAuthor();
-                            break;
-                        default:
-                            System.out.println("Opción inválida");
-                    }
-                    break;
-                case 4:
-                    exit = true;
-                    break;
-                default:
-                    System.out.println("Opción inválida");
+            if ("4".equals(choice)) {
+                exit = true;
             }
+
+            menu.executeOption(choice);
         }
     }
 }

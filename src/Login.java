@@ -2,10 +2,18 @@ import java.util.Scanner;
 
 public class Login{
 
-    Repository repository;
+    Seeder seeder;
+    ConsoleReader consoleReader;
+    StringValidator stringValidator;
+    IntegerValidator integerValidator;
+    BooleanValidator booleanValidator;
 
-    public Login(Repository repository) {
-        this.repository=repository;
+    public Login(Seeder seeder,StringValidator stringValidator,IntegerValidator integerValidator,ConsoleReader consoleReader, BooleanValidator booleanValidator) {
+        this.seeder = seeder;
+        this.stringValidator=stringValidator;
+        this.integerValidator=integerValidator;
+        this.consoleReader=consoleReader;
+        this.booleanValidator=booleanValidator;
     }
 
     public void start() {
@@ -14,11 +22,11 @@ public class Login{
 
         while (continuar) {
             System.out.println("Clientes: ");
-            for(Client client: repository.clients){
+            for(Client client: seeder.userRepository.clients){
                 System.out.print(" - " + client.getUsername() + "\n");
             }
             System.out.println("Administradores: ");
-            for (Administrador administrador: repository.administradores){
+            for (Administrador administrador: seeder.userRepository.administradores){
                 System.out.print(" - " + administrador.getUsername() + "\n");
             }
 
@@ -35,9 +43,9 @@ public class Login{
                 System.out.println("Nombre de usuario o contraseña incorrectos.");
             }
 
-            System.out.println("¿Desea regresar al login? (Si/No)");
-            String opcion = scanner.nextLine();
-            if (!opcion.equalsIgnoreCase("Si")) {
+            System.out.println("¿Desea regresar al login? (s/n)");
+            String option = scanner.nextLine();
+            if (!option.equalsIgnoreCase("s")) {
                 continuar = false;
             }
         }
@@ -45,7 +53,7 @@ public class Login{
     }
 
     public User findUserByUsername(String username) {
-        for (User user : repository.users) {
+        for (User user : seeder.userRepository.users) {
             if (user.getUsername().equals(username)) {
                 return user;
             }
@@ -54,17 +62,20 @@ public class Login{
     }
     private void displayMenu(User user) {
         if (user instanceof Administrador) {
-            ClientController clientController = new ClientController(repository);
-            AuthorController authorController = new AuthorController(repository);
-            BookController bookController = new BookController(repository);
-            AdministradorController administradorController = new AdministradorController(repository);
-            MenuAdministrador menuAdministrador = new MenuAdministrador((Administrador) user, clientController, authorController, bookController, administradorController);
+            ClientController clientController = new ClientController(seeder,stringValidator,integerValidator,consoleReader,booleanValidator);
+            AuthorController authorController = new AuthorController(seeder,stringValidator,integerValidator,consoleReader,booleanValidator);
+            BookController bookController = new BookController(seeder,stringValidator,integerValidator,consoleReader,booleanValidator);
+            AdministradorController administradorController = new AdministradorController(seeder,stringValidator,integerValidator,consoleReader,booleanValidator);
+            Menu menu=new Menu();
+            MenuAdministrador menuAdministrador = new MenuAdministrador((Administrador) user, clientController, authorController, bookController, administradorController,menu);
             menuAdministrador.displayMenu();
+
         } else if (user instanceof Client) {
-            TransactionController transactionController = new TransactionController(repository);
-            MovementReport movementReport = new MovementReport(repository);
-            MenuClient menuClient= new MenuClient(transactionController,movementReport);
-            menuClient.displayMenu();
+            TransactionController transactionController = new TransactionController(seeder,stringValidator,integerValidator,consoleReader,booleanValidator);
+            MovementReport movementReport = new MovementReport(seeder);
+            Menu menu=new Menu();
+            MenuClient menuClient= new MenuClient(transactionController,movementReport,menu);
+            menuClient.displayMenu((Client) user);
         }
     }
 }

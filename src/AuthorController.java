@@ -1,32 +1,31 @@
-import java.util.Scanner;
 
 public class AuthorController{
 
-    private final Repository repository;
-    Scanner scanner=new Scanner(System.in);
-    public AuthorController(Repository repository) {
-        this.repository = repository;
+    Seeder seeder;
+    ConsoleReader consoleReader;
+    StringValidator stringValidator;
+    IntegerValidator integerValidator;
+    BooleanValidator booleanValidator;
+
+    public AuthorController(Seeder seeder,StringValidator stringValidator,IntegerValidator integerValidator,ConsoleReader consoleReader, BooleanValidator booleanValidator) {
+        this.seeder = seeder;
+        this.stringValidator=stringValidator;
+        this.integerValidator=integerValidator;
+        this.consoleReader=consoleReader;
+        this.booleanValidator=booleanValidator;
     }
 
-
-
     public void createAuthor(){
-        System.out.println("Ingresa el nombre del autor: ");
-        String name= scanner.nextLine();
-
-        System.out.println("Ingresa los apellidos del autor: ");
-        String lastName=scanner.nextLine();
-
-        System.out.println("Ingresa el año de nacimiento del autor: ");
-        int birthDate=scanner.nextInt();
-
+        String name=consoleReader.readString("Ingresa el nombre del autor: ",input -> stringValidator.validate(input));
+        String lastName=consoleReader.readString("Ingresa el apellido del autor: ",input ->stringValidator.validate(input));
+        int birthDate=consoleReader.readInt("Ingresa la fecha de nacimiento del autor: ",input -> integerValidator.validate(input));
         Author newAuthor=new Author(new Profile(name,lastName,birthDate));
-        repository.authors.add(newAuthor);
+        seeder.authorRepository.authors.add(newAuthor);
     }
 
         public void readAuthor(){
             System.out.println("Lista de autores: \n");
-            for(Author author: repository.authors){
+            for(Author author: seeder.authorRepository.authors){
                 System.out.print("Nombre: " + author.getProfile().getName() + "\n");
                 System.out.print("Apellido: " + author.getProfile().getLastName() + "\n");
                 System.out.print("Fecha de nacimiento: " + author.getProfile().getBirthDate() +"\n");
@@ -37,68 +36,61 @@ public class AuthorController{
             }
         }
 
-    public void updateAuthor(){
-        if(repository.authors.isEmpty()){
+    public void updateAuthor() {
+        if (seeder.authorRepository.authors.isEmpty()) {
             System.out.println("No hay autores para actualizar.");
             return;
         }
 
-        System.out.println("Seleccione el cliente que desea actualizar:");
-        for(int i = 0; i < repository.authors.size(); i++){
-            System.out.println((i+1) + ". " + repository.authors.get(i).getProfile().getName());
+        System.out.println("Seleccione el autor que desea actualizar:");
+        for (int i = 0; i < seeder.authorRepository.authors.size(); i++) {
+            System.out.println((i + 1) + ". " + seeder.authorRepository.authors.get(i).getProfile().getName());
         }
 
-        int authorIndex = scanner.nextInt() - 1;
-        scanner.nextLine(); // consume newline
+        int authorIndex = consoleReader.readIndex(seeder.authorRepository.authors.size()) - 1;
 
-        if(authorIndex < 0 || authorIndex >= repository.authors.size()){
+        if (authorIndex < 0 || authorIndex >= seeder.authorRepository.authors.size()) {
             System.out.println("Selección inválida. Por favor, intente de nuevo.");
             return;
         }
 
-        Author author = repository.authors.get(authorIndex);
+        Author author = seeder.authorRepository.authors.get(authorIndex);
 
-        System.out.println("Ingrese el nuevo nombre del autor:");
-        String newName = scanner.nextLine();
+        String newName = consoleReader.readString("Ingrese el nuevo nombre del autor: ", input -> stringValidator.validate(input));
         author.getProfile().setName(newName);
-
-        System.out.println("Ingrese el nuevo apellido del autor:");
-        String newLastName = scanner.nextLine();
+        String newLastName = consoleReader.readString("Ingrese el nuevo apellido del autor: ",input -> stringValidator.validate(input));
         author.getProfile().setLastName(newLastName);
-
-        System.out.println("Ingrese el nuevo año de nacimiento del autor:");
-        int newBirthDate = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        int newBirthDate = consoleReader.readInt("Ingrese el nuevo año de nacimiento del autor: ", input -> integerValidator.validate(input));
         author.getProfile().setBirthDate(newBirthDate);
-        System.out.println("Información del cliente actualizada con éxito.");
+        System.out.println("Información del autor actualizada con éxito.");
     }
+
     public void deleteAuthor() {
-        if(repository.authors.isEmpty()){
+        if (seeder.authorRepository.authors.isEmpty()) {
             System.out.println("No hay autores para eliminar.");
             return;
         }
 
         System.out.println("Seleccione el autor que desea eliminar:");
-        for(int i = 0; i < repository.authors.size(); i++){
-            System.out.println((i+1) + ". " + repository.authors.get(i).getProfile().getName());
+        for (int i = 0; i < seeder.authorRepository.authors.size(); i++) {
+            System.out.println((i + 1) + ". " + seeder.authorRepository.authors.get(i).getProfile().getName());
         }
 
-        int authorIndex = scanner.nextInt() - 1;
-        scanner.nextLine(); // consume newline
+        int authorIndex = consoleReader.readIndex(seeder.authorRepository.authors.size()) - 1;
 
-        if(authorIndex < 0 || authorIndex >= repository.authors.size()){
+        if (authorIndex < 0 || authorIndex >= seeder.authorRepository.authors.size()) {
             System.out.println("Selección inválida. Por favor, intente de nuevo.");
             return;
         }
 
-        Author authorToRemove = repository.authors.get(authorIndex);
+        Author authorToRemove = seeder.authorRepository.authors.get(authorIndex);
 
-        // Verificar si el autor tiene libros escritos
         if (authorToRemove.getBooks().isEmpty()) {
-            repository.authors.remove(authorToRemove);
+            seeder.authorRepository.authors.remove(authorToRemove);
             System.out.println("Autor " + authorToRemove.getProfile().getName() + " eliminado correctamente.");
         } else {
             System.out.println("No se puede eliminar el autor " + authorToRemove.getProfile().getName() + " porque tiene libros escritos.");
         }
     }
+
 }

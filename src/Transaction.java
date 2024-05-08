@@ -1,6 +1,4 @@
 import java.time.LocalDate;
-
-
 public class Transaction {
     String id;
     TransactionType type;
@@ -11,7 +9,6 @@ public class Transaction {
     public enum TransactionType{
         LOAN,DEVOLUTION
     }
-
     public Transaction(TransactionType type, String id,Client client, Book book, LocalDate date) {
         this.id = id;
         this.type=type;
@@ -19,8 +16,6 @@ public class Transaction {
         this.book=book;
         this.date=date;
     }
-
-
     public  TransactionType getType(){
         return type;
     }
@@ -30,6 +25,4 @@ public class Transaction {
     public  Book getBook(){
         return  book;
     }
-
-
 }
